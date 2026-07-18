@@ -1,0 +1,21 @@
+Copyright (c) 2026 Ouroboros project author. All rights reserved.
+
+This repository is a public RESEARCH LOG, made viewable for the sole purpose
+of evaluation (including by grant and funding programs).
+
+NO LICENSE IS GRANTED. Specifically, and without limitation:
+
+  - You may NOT copy, reproduce, or redistribute this material, in whole or
+    in part.
+  - You may NOT use the described methods, results, designs, or any part of
+    this work to train, build, or derive any model, system, or product.
+  - You may NOT create derivative works.
+
+The implementation source code, model checkpoints, training recipes, and
+detailed roadmap are NOT included in this repository and remain private and
+proprietary.
+
+Viewing this repository for evaluation does not grant any right, license, or
+permission of any kind. All rights are expressly reserved by the author.
+
+For any use beyond evaluation, contact the author for written permission.

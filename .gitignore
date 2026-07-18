@@ -1,0 +1,9 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# nothing else belongs here — this is a docs-only research log.
+# implementation, checkpoints, and data are kept in a separate private repository.
