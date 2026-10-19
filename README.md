@@ -2,11 +2,11 @@
 
 # 🐍 Ouroboros
 
-**A new composite language-model architecture — built by one person on a single 8&nbsp;GB laptop, one mechanism at a time, where every design choice had to survive a pre-registered ablation and every failure is kept on the record.**
+**A new composite language-model architecture — built by one person on a laptop and rented cloud GPUs, one mechanism at a time, where every design choice had to survive a pre-registered ablation and every failure is kept on the record.**
 
 ![status](https://img.shields.io/badge/status-active_research-2E8B84)
-![scale](https://img.shields.io/badge/validation-1M--param_prototypes-3B6EA5)
-![hardware](https://img.shields.io/badge/hardware-one_8GB_laptop_GPU-5B6472)
+![scale](https://img.shields.io/badge/validation-1M--param_prototypes_+_1.5B_base-3B6EA5)
+![hardware](https://img.shields.io/badge/hardware-8GB_laptop_+_cloud_GPU-5B6472)
 ![method](https://img.shields.io/badge/every_claim-ablation--proven-C9822E)
 ![license](https://img.shields.io/badge/license-evaluation_only-8A93A0)
 
@@ -15,6 +15,47 @@
 > [!IMPORTANT]
 > **This repository is a public research log — not the source code.**
 > The implementation, model checkpoints, training recipes, and detailed roadmap are held in a **private repository** and are not included here. What you're reading documents *what was built, how it was tested, and what the measurements showed* — including the many things that did not work. It is shared so the **method and the evidence** can be evaluated. The code is available to serious partners under separate arrangement.
+
+---
+
+## Progress update (October 2026)
+
+> [!NOTE]
+> This update states **what** has been achieved and **what** the project is aimed at. It deliberately does not describe **how**; the implementation stays private (see above). Every number below is a measurement with its sample size and caveats, and nothing here is a claim beyond what was run.
+
+**Where the project stands.** The work has moved from ~1M-parameter prototypes to a **1.5B-parameter block-diffusion base**. Experiments now run on a rented cloud GPU as well as the original 8&nbsp;GB laptop, which stays the target device for on-device checks.
+
+### What the project aims at
+
+- **A truly windowless model.** No context window: memory, input and output are unbounded, limited by hardware rather than by a fixed design cap.
+- **Speed that stays flat as history grows.** Generation speed should not degrade as the amount of history grows from thousands to hundreds of millions of tokens.
+- **Weights hold skills; knowledge stays external.** Reasoning, learning and tool use live in the model; bulk facts live in external memory and references that can be updated without retraining.
+- **A biologically inspired, single unified system.** One model, not a pipeline of separate models.
+- **Long-term aspirations (not results):** a finished model that beats much larger models on matched public benchmarks, and high-speed generation on a single laptop GPU.
+
+### Measured results so far
+
+| Result | Measured | n and caveats |
+|---|---|---|
+| Speed vs history length | **Flat from 1K to 12M tokens of history**: about 200-240 tok/s for a single stream, about 550-600 tok/s with parallel generation | n=40 per cell. **Pilot, not claimable.** Known open issues remain before this can be claimed. |
+| Decode speed | **74 → 167 tok/s** | n=900 per arm, single cloud GPU. Measures one decoding change, not the full system. |
+| Entity identity in a frozen model | Same-entity detection across distances with no word overlap: **AUROC ~0.78** (range 0.76-0.79) vs **~0.5** for a randomly initialised control | n=400 pairs per cell, real text. Diagnostic only, on the unmodified model. A synthetic source gave the control spurious signal, so it is given no weight. |
+
+These are early, partly pilot-level measurements. They show the direction is physically possible; they are not yet end-to-end claims about a finished model.
+
+### How results are kept honest
+
+- **Pre-registered kill rules.** The pass/fail bar is written before the run; failures are documented and cut.
+- **Random baselines and fair, tuned controls** on every comparison, with sample sizes of a few hundred or more before anything is believed.
+- **A corrected false win, on the record.** An under-tuned control initially inflated a result; the claim was re-measured under fairer tuning and a harder setup before it was trusted.
+- **Public benchmarks are never trained on.** They are held-out evaluation only, run once the system is built.
+
+### Next milestones
+
+1. Settle the remaining speed defects and move the flat-speed result from pilot to a claimable, larger-n measurement.
+2. Run the public long-context and memory benchmark baselines on the 1.5B base (held-out only).
+3. Verify that the windowless system loses nothing against the unmodified base model before any further training.
+4. Then general training, reasoning-focused training, and the remaining capabilities, in that order, each gated on the previous stage.
 
 ---
 
@@ -163,7 +204,7 @@ flowchart LR
     FN -. "each proven by ablation,<br/>then integrated" .-> SPINE
 ```
 
-Every component is added **one at a time**, with a regression gate at every step — so nothing degrades, everything complements, and every regression is attributable. Validation runs on a single laptop GPU (RTX 5070, 8&nbsp;GB), in pure PyTorch with no custom kernels; each experiment prints its own ablation table.
+Every component is added **one at a time**, with a regression gate at every step — so nothing degrades, everything complements, and every regression is attributable. Prototype validation ran on a single laptop GPU (RTX 5070, 8&nbsp;GB); the 1.5B-base work also uses a rented cloud GPU. Each experiment prints its own ablation table.
 
 **The scale of the program is the point.** This isn't one clever trick — it's a **24-step, pre-registered integration ladder**: a dozen-plus distinct mechanisms designed, ablated, and composed into a *single* prototype model, with a documented failure ledger for everything that didn't make it, and the whole lineage re-run from scratch on independent hardware to check it replicates. That volume of falsifiable, regression-gated work — not any single component — is what's hard to fake, and it's the real asset. The roster is a snapshot of a process that keeps running: take one candidate, push it to its limit, stress-test it, add it only if it survives.
 
@@ -228,4 +269,4 @@ Ouroboros is the work of a solo founder, built independently on a single laptop.
 
 **I'm looking for compute and support to carry this validated foundation onto a larger base.** If you're evaluating this for a grant, compute allocation, or collaboration — or want to see the implementation under NDA — reach out on [X (@\_dr\_misterio\_)](https://x.com/_dr_misterio_) or open an issue here.
 
-<sub>Research log current as of July 2026 · updated as results land.</sub>
+<sub>Research log current as of October 2026 · updated as results land.</sub>
