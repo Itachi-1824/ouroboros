@@ -7,9 +7,9 @@
 
 <br>
 
-### A new composite language-model architecture, built by one person on a laptop and rented cloud GPUs, one mechanism at a time. Every design choice had to survive a pre-registered ablation, and every failure is kept on the record.
+### A new composite language-model architecture, built by one person on a laptop and rented cloud GPUs, one mechanism at a time. Every mechanism seated in the model had to survive a pre-registered ablation; pilots and plans are labelled as such, and every failure is kept on the record.
 
-<sub>**Status** active research &nbsp;·&nbsp; **Validation** 1M-param prototypes + 1.5B base &nbsp;·&nbsp; **Hardware** 8&nbsp;GB laptop + cloud GPU &nbsp;·&nbsp; **Every claim** ablation-proven &nbsp;·&nbsp; **License** evaluation only</sub>
+<sub>**Status** active research &nbsp;·&nbsp; **Validation** 1M-param prototypes + 1.5B base &nbsp;·&nbsp; **Hardware** 8&nbsp;GB laptop + cloud GPU &nbsp;·&nbsp; **Claims** labelled proven / pilot / planned &nbsp;·&nbsp; **License** evaluation only</sub>
 
 [Progress](#progress-update-october-2026) &nbsp;·&nbsp; [Results](#selected-measured-results) &nbsp;·&nbsp; [Method](#the-method-this-is-the-point) &nbsp;·&nbsp; [Open questions](#whats-proven-whats-open-and-what-failed) &nbsp;·&nbsp; [Roadmap](#have--doing-now--will-explore) &nbsp;·&nbsp; [Contact](#about--contact)
 
@@ -30,13 +30,14 @@ This update states **what** has been achieved and **what** the project is aimed 
   <source media="(prefers-color-scheme: dark) and (max-width: 640px)" srcset="assets/diagrams/results-m-dark.svg">
   <source media="(max-width: 640px)" srcset="assets/diagrams/results-m-light.svg">
   <source media="(prefers-color-scheme: dark)" srcset="assets/diagrams/results-dark.svg">
-  <img alt="Measured results so far: speed flat from 1K to 12M tokens of history (pilot, not claimable; n=40 per cell); decode speed 74 to 167 tok/s (n=900 per arm); entity identity AUROC about 0.78 versus about 0.5 control (n=400 pairs per cell, diagnostic only)." src="assets/diagrams/results-light.svg" width="100%">
+  <img alt="Measured results so far: speed flat from 1K to 12M tokens of history (pilot, not claimable; n=40 per cell); decode speed 74 to 167 tok/s (n=900 per arm, provisional); entity identity AUROC about 0.78 versus about 0.5 control (n=400 pairs per cell, diagnostic only)." src="assets/diagrams/results-light.svg" width="100%">
 </picture>
 
 | Result | Measured | n and caveats |
 |---|---|---|
 | Speed vs history length | **Flat from 1K to 12M tokens of history**: about 200-240 tok/s for a single stream, about 550-600 tok/s with parallel generation | n=40 per cell. **Pilot, not claimable.** Known open issues remain before this can be claimed. |
-| Decode speed | **74 → 167 tok/s** | n=900 per arm, single cloud GPU. Measures one decoding change, not the full system. |
+| Decode speed | **74 → 167 tok/s** | n=900 per arm, single cloud GPU. Measures one decoding change, not the full system. **Provisional:** the raw run file is not yet archived and the baseline differs between internal notes; to be re-measured before it is relied on. |
+| Session memory beyond the live view (first test) | **No gain** over an identically trained control without memory: 0.293 vs 0.297 | n=300 held-out items. Negative result. A defect was found and fixed; the re-run is in progress. |
 | Entity identity in a frozen model | Same-entity detection across distances with no word overlap: **AUROC ~0.78** (range 0.76-0.79) vs **~0.5** for a randomly initialised control | n=400 pairs per cell, real text. Diagnostic only, on the unmodified model. A synthetic source gave the control spurious signal, so it is given no weight. |
 
 These are early, partly pilot-level measurements. They show the direction is physically possible; they are not yet end-to-end claims about a finished model.
@@ -134,7 +135,7 @@ The failures are the most instructive part of this repository, and they're all o
 
 ## Selected measured results
 
-> **Scale note:** the chart and the first table below are **prototype-scale** results (~1M-param models, one 8&nbsp;GB laptop GPU). The final row-set is separately labeled where it applies to a larger base. Every number is the output of a pre-registered, anti-cheated ablation.
+> **Scale note:** the chart and the first table below are **prototype-scale** results (~1M-param models, one 8&nbsp;GB laptop GPU). Every prototype-scale number is the output of a pre-registered, anti-cheated ablation. The larger-base row is separately labeled with its own scope.
 
 <picture>
   <source media="(prefers-color-scheme: dark) and (max-width: 640px)" srcset="assets/lifts-m-dark.svg">
@@ -189,7 +190,7 @@ These are the claims still to be earned. Naming them is the point:
 Pre-registered tests that *didn't* earn a seat. Each carries its root cause:
 
 - **Recurrent (adaptive) depth.** No measurable iteration margin across two separate designs; the mechanism halts at a fixed depth rather than scaling with difficulty. Re-registered for re-test at larger scale, where the headroom may physically exist.
-- **A surprise-gated memory module (Titans-style).** Couldn't fit its own study set on deterministic footing; more inner compute only overfit. Shelved intact.
+- **A surprise-gated memory module.** Couldn't fit its own study set on deterministic footing; more inner compute only overfit. Shelved intact.
 - **A central / portfolio resource allocator.** A decentralized alternative won, then a follow-up proved there was *no headroom left to win at all* at this scale: even an oracle allocation tied uniform.
 - **An introspective self-model.** A synthetic head scored well but did not transfer to real lifetime history; the existing per-item confidence signal already beat even a perfect-oracle version, so the mechanism was structurally dominated.
 - **A self-correction / draft-repair pass.** Capability-limited, not gradient-limited; the repair plateaued regardless of training budget.
@@ -279,7 +280,7 @@ The through-line of the whole project is the same: **capability from architectur
 
 ## About & contact
 
-Ouroboros is the work of a solo founder, built independently, starting on a single laptop. That constraint is deliberate, and it shows in the results: an entire architecture designed, implemented, and validated across a 24-step build on one 8&nbsp;GB consumer GPU, with every claim held to a pre-registered ablation. The efficiency of the approach *is* the thesis: careful architecture, not raw scale, is the lever a small team can pull.
+Ouroboros is the work of a solo founder, built independently, starting on a single laptop. That constraint is deliberate, and it shows in the results: an entire architecture designed, implemented, and validated across a 24-step build on one 8&nbsp;GB consumer GPU, with every seated mechanism held to a pre-registered ablation. The efficiency of the approach *is* the thesis: careful architecture, not raw scale, is the lever a small team can pull.
 
 **I'm looking for compute and support to carry this validated foundation onto a larger base.** If you're evaluating this for a grant, compute allocation, or collaboration, or want to see the implementation under NDA, reach out on [X (@\_dr\_misterio\_)](https://x.com/_dr_misterio_) or open an issue here.
 
