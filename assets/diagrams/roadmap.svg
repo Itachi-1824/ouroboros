@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Roadmap: Stage 1 memory, context and attention; 1.1 output; 1.2 text input; then permanent learning, autonomous tool use, and omni input last.">
+<style>
+:root{--ink:#17150F;--mut:#5E5A52;--line:#B9B3A6;--on:#17150F;--off:#F4F1EA}
+@media (prefers-color-scheme:dark){:root{--ink:#F1EEE6;--mut:#A8A296;--line:#4A463E;--on:#F1EEE6;--off:#1B1A16}}
+text{font-family:Georgia,'Times New Roman',serif;fill:var(--ink)}
+.s{font-family:system-ui,-apple-system,Segoe UI,sans-serif;font-size:13px;fill:var(--mut)}
+.t{font-size:19px}
+</style>
+<line x1="60" y1="70" x2="1140" y2="70" stroke="var(--line)" stroke-width="2"/>
+<g>
+<circle cx="60" cy="70" r="9" fill="var(--on)"/><text class="t" x="60" y="112" text-anchor="start">Stage 1</text><text class="s" x="60" y="136">memory, context, attention</text>
+<circle cx="330" cy="70" r="9" fill="none" stroke="var(--on)" stroke-width="2"/><text class="t" x="330" y="112">1.1</text><text class="s" x="330" y="136">output</text>
+<circle cx="520" cy="70" r="9" fill="none" stroke="var(--on)" stroke-width="2"/><text class="t" x="520" y="112">1.2</text><text class="s" x="520" y="136">text input</text>
+<circle cx="710" cy="70" r="9" fill="none" stroke="var(--line)" stroke-width="2"/><text class="t" x="710" y="112">Later</text><text class="s" x="710" y="136">reasoning, permanent learning</text>
+<circle cx="930" cy="70" r="9" fill="none" stroke="var(--line)" stroke-width="2"/><text class="t" x="930" y="112">Later</text><text class="s" x="930" y="136">autonomous tool use</text>
+<circle cx="1130" cy="70" r="9" fill="none" stroke="var(--line)" stroke-width="2"/><text class="t" x="1130" y="112" text-anchor="end">Last</text><text class="s" x="1130" y="136" text-anchor="end">omni input</text>
+</g>
+<text class="s" x="60" y="178">Filled = in progress. Nothing advances until the previous stage is measured, not assumed.</text>
+</svg>

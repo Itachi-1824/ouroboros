@@ -2,287 +2,135 @@
   <source media="(prefers-color-scheme: dark) and (max-width: 640px)" srcset="assets/hero-m-dark.svg">
   <source media="(max-width: 640px)" srcset="assets/hero-m-light.svg">
   <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
-  <img alt="Ouroboros: a public research log. Capability from architecture and efficiency, not from raw scale." src="assets/hero-light.svg" width="100%">
+  <img alt="Ouroboros: a public research log." src="assets/hero-light.svg" width="100%">
 </picture>
 
 <br>
 
-### A new composite language-model architecture, built by one person on a laptop and rented cloud GPUs, one mechanism at a time. Every mechanism seated in the model had to survive a pre-registered ablation; pilots and plans are labelled as such, and every failure is kept on the record.
+### A biologically inspired, multi-species "mutated chimera" organism, built in place on an open ~27B base model: effectively unbounded memory and context, continual learning, and speed that beats the base. Built by one person, research-first, with every claim pre-registered, labelled with its sample size, and every failure kept on the record.
 
-<sub>**Status** active research &nbsp;·&nbsp; **Validation** 1M-param prototypes + 1.5B base &nbsp;·&nbsp; **Hardware** 8&nbsp;GB laptop + cloud GPU &nbsp;·&nbsp; **Claims** labelled proven / pilot / planned &nbsp;·&nbsp; **License** evaluation only</sub>
+<sub>**Status** active research &nbsp;·&nbsp; **Base** open ~27B model &nbsp;·&nbsp; **Evidence** n and status on every number &nbsp;·&nbsp; **License** evaluation only</sub>
 
-[Progress](#progress-update-october-2026) &nbsp;·&nbsp; [Results](#selected-measured-results) &nbsp;·&nbsp; [Method](#the-method-this-is-the-point) &nbsp;·&nbsp; [Open questions](#whats-proven-whats-open-and-what-failed) &nbsp;·&nbsp; [Roadmap](#have--doing-now--will-explore) &nbsp;·&nbsp; [Contact](#about--contact)
+[Direction](#direction) &nbsp;·&nbsp; [Progress](#progress-november-2026) &nbsp;·&nbsp; [Method](#method) &nbsp;·&nbsp; [Roadmap](#roadmap) &nbsp;·&nbsp; [Failures](#failures-on-the-record) &nbsp;·&nbsp; [Earlier work](#earlier-work-october-2026-and-before) &nbsp;·&nbsp; [Contact](#about--contact)
 
 > **This repository is a public research log, not the source code.**
-> The implementation, model checkpoints, training recipes, and detailed roadmap are held in a **private repository** and are not included here. What you're reading documents *what was built, how it was tested, and what the measurements showed*, including the many things that did not work. It is shared so the **method and the evidence** can be evaluated. The code is available to serious partners under separate arrangement.
+> Implementation, weights, training recipes and detailed design are held privately and are not included here. This log documents *what is being attempted, how it is tested, and what the measurements showed*, including what did not work, so the method and the evidence can be evaluated.
 
 <br>
 
-## Progress update (October 2026)
+## Direction
 
-**Where the project stands.** The work has moved from ~1M-parameter prototypes to a **1.5B-parameter block-diffusion base**. Experiments now run on a rented cloud GPU as well as the original 8&nbsp;GB laptop, which stays the target device for on-device checks.
+Ouroboros started as a from-scratch composite language model on a single 8 GB GPU. It has since changed course: the work is now **built in place on an open ~27B base model**, treating that model as the knowledge and communication cortex of a larger organism rather than training a small model alone.
 
-This update states **what** has been achieved and **what** the project is aimed at. It deliberately does not describe **how**; the implementation stays private (see above). Every number below is a measurement with its sample size and caveats, and nothing here is a claim beyond what was run.
+The organism is a **mutated chimera**: circuits modelled on measured brain wiring from several species, fused with engineering techniques (retrieval, graphs, exact lookup) rebuilt as neural parts, so there is one model and one set of weights rather than a pipeline of separate tools.
 
-### Measured results so far
+What it is aimed at:
 
-<picture>
-  <source media="(prefers-color-scheme: dark) and (max-width: 640px)" srcset="assets/diagrams/results-m-dark.svg">
-  <source media="(max-width: 640px)" srcset="assets/diagrams/results-m-light.svg">
-  <source media="(prefers-color-scheme: dark)" srcset="assets/diagrams/results-dark.svg">
-  <img alt="Measured results so far: speed flat from 1K to 12M tokens of history (pilot, not claimable; n=40 per cell); decode speed 74 to 167 tok/s (n=900 per arm, provisional); entity identity AUROC about 0.78 versus about 0.5 control (n=400 pairs per cell, diagnostic only)." src="assets/diagrams/results-light.svg" width="100%">
-</picture>
+- **Effectively unbounded memory and context.** Memory is built by the model itself as it reads and writes, bounded by hardware rather than by a fixed window.
+- **Continual learning.** Learning from live experience without forgetting, so knowledge does not go stale.
+- **Faster than the base.** At equal or better quality, the organism should out-run the unmodified base model.
+- **No tradeoffs.** It must match or beat the base on every registered axis; a regression is treated as a defect, not a cost.
+- **Skills in the weights, knowledge outside.** Reasoning, learning and tool use live in the model; facts live in memory and external sources.
 
-| Result | Measured | n and caveats |
+These are goals. Nothing in this list is claimed as achieved; see [Progress](#progress-november-2026) for what has actually been measured.
+
+<br>
+
+## Progress (November 2026)
+
+Every number below states its sample size and status. Development results are not claims.
+
+| Date | Milestone | Evidence and caveats |
 |---|---|---|
-| Speed vs history length | **Flat from 1K to 12M tokens of history**: about 200-240 tok/s for a single stream, about 550-600 tok/s with parallel generation | n=40 per cell. **Pilot, not claimable.** Known open issues remain before this can be claimed. |
-| Decode speed | **74 → 167 tok/s** | n=900 per arm, single cloud GPU. Measures one decoding change, not the full system. **Provisional:** the raw run file is not yet archived and the baseline differs between internal notes; to be re-measured before it is relied on. |
-| Session memory beyond the live view (first test) | **No gain** over an identically trained control without memory: 0.293 vs 0.297 | n=300 held-out items. Negative result. A defect was found and fixed; the re-run is in progress. |
-| Entity identity in a frozen model | Same-entity detection across distances with no word overlap: **AUROC ~0.78** (range 0.76-0.79) vs **~0.5** for a randomly initialised control | n=400 pairs per cell, real text. Diagnostic only, on the unmodified model. A synthetic source gave the control spurious signal, so it is given no weight. |
-
-These are early, partly pilot-level measurements. They show the direction is physically possible; they are not yet end-to-end claims about a finished model.
-
-### What the project aims at
-
-- **A truly windowless model.** No context window: memory, input and output are unbounded, limited by hardware rather than by a fixed design cap.
-- **Speed that stays flat as history grows.** Generation speed should not degrade as the amount of history grows from thousands to hundreds of millions of tokens.
-- **Weights hold skills; knowledge stays external.** Reasoning, learning and tool use live in the model; bulk facts live in external memory and references that can be updated without retraining.
-- **A biologically inspired, single unified system.** One model, not a pipeline of separate models.
-- **Long-term aspirations (not results):** a finished model that beats much larger models on matched public benchmarks, and high-speed generation on a single laptop GPU.
-
-### How results are kept honest
-
-- **Pre-registered kill rules.** The pass/fail bar is written before the run; failures are documented and cut.
-- **Random baselines and fair, tuned controls** on every comparison, with sample sizes of a few hundred or more before anything is believed.
-- **A corrected false win, on the record.** An under-tuned control initially inflated a result; the claim was re-measured under fairer tuning and a harder setup before it was trusted.
-- **Public benchmarks are never trained on.** They are held-out evaluation only, run once the system is built.
-
-### Next milestones
-
-1. Settle the remaining speed defects and move the flat-speed result from pilot to a claimable, larger-n measurement.
-2. Run the public long-context and memory benchmark baselines on the 1.5B base (held-out only).
-3. Verify that the windowless system loses nothing against the unmodified base model before any further training.
-4. Then general training, reasoning-focused training, and the remaining capabilities, in that order, each gated on the previous stage.
+| Oct 2026 | **Integration contract written**: a single contract fixing where each family of mechanisms lives, so later stages fill reserved places instead of forcing rewiring | Design document; no measurement |
+| 3 Nov | **Exact-memory development panel**: 35 cells, n = 300 each, on a CPU fixture; exact recall output with **0 errors** after one defect was found and fixed | One cell first showed **3/300 errors** (the reader mutated corrupt files); it was fixed and reconfirmed on fresh roots, and the original failure stays recorded. Development profile only, **not a pass** of the registered test: one seed, several registered sub-cells not yet run |
+| 3 Nov | **First real-27B learning screen: running.** Cost admitted; screen cells completed at n = 300 | Public benchmark cells sit at the base model's ceiling (base 300/300 on two long-context cells; base .977 on a math cell under the publisher's protocol), so they test **non-regression** only. The learning signal comes from separate development arms, **verdict pending** |
+| 3 Nov | **Honest negative: a regression logged** | With the new tissue mounted and **no learning**, one long-context cell scored 297/300 then 294/300 against the base's 300/300 (n = 300). Treated as a defect; cause **not yet attributed** |
+| 3 Nov | **Honest negative: unreproducible GPU runs** | Identical code and greedy decoding gave different scores across two runs (math cell .897 vs .877; long-context 297 vs 294, n = 300). GPU forward passes are not bitwise reproducible, so comparisons are paired within one run and run-to-run variance is reported |
+| 1-3 Nov | **Honest negative: our own harness was wrong** | A first base-model math score of .393 (n = 300) was a scoring-format defect in our harness, not capability; under the publisher's protocol the same model scored .977 (n = 300). The harness was fixed, and the invalid cell is not used |
+| 3 Nov | **Honest negative: a planned addition was not built** | A pre-registered headroom check (n = 300) showed the proposed memory add-on had no room to help where exact lookup already decides the answer; it is deferred to cases where exact lookup cannot decide |
+| 27-30 Oct | **Honest negative: re-entrant reasoning depth** | A zero-training probe made things worse (74/300 vs 89/300, exact McNemar p = 0.0015) or neutral (90 vs 89 of 300). Later fitted variants reached unseen depths on one seed, but acquisition was bimodal across seeds; not a claim |
 
 <br>
 
-## What this is
+## Method
 
-Most language models share one blueprint: read left-to-right, predict one token at a time, never revise, and stop learning when training ends. **Ouroboros is a different architecture.** It began from a *block-diffusion* foundation (a model that drafts and revises whole spans rather than emitting one token at a time) and is being extended into a **composite design that absorbs the strongest, individually-proven ideas from across the architecture landscape**: state-space memory efficiency, adaptive-depth reasoning, retrieval-augmented recall, continual-learning consolidation. Each is folded in only after it earns its place on measured evidence.
-
-The result is a compact model designed to:
-
-| Capability | What it means |
-|---|---|
-| **Draft & revise** | writes a whole reply at once, then refines it. A bidirectional design *can* revise an earlier span rather than only appending, which a left-to-right model structurally cannot (demonstrated at prototype scale; carrying it to a larger base is in-progress work) |
-| **Remember in layers** | short-term context → per-conversation memory → compressed gist → a large lookup store |
-| **Forget on purpose** | a learned gate clears stale session state on reset while keeping fresh state intact |
-| **Know when it doesn't know** | one calibrated confidence signal drives abstention: it says "I don't know" instead of guessing |
-| **Scale effort to difficulty** | spends more compute on harder problems, automatically |
-| **Consolidate offline** | facts learned quickly at runtime are carried into the slow weights via a replay step |
-
-<br>
-
-## Why this approach
-
-**The goal.** Build a small model that punches far above its parameter count, one that reasons, follows instructions, uses tools, and keeps learning, by giving it *capabilities the standard recipe can't*, rather than by simply making it bigger. The bet is that careful architecture and a rigorous, one-mechanism-at-a-time build can close much of the gap that the field currently closes only with scale.
-
-<details>
-<summary><b>Why a block-diffusion foundation, and why not stop there</b></summary>
-
-<br>
-
-**Why a block-diffusion foundation.** A standard autoregressive model commits to each token left-to-right and can never revise it. A block-diffusion model instead drafts a whole span and refines it, with attention running in both directions. That unlocks things an autoregressive model *structurally cannot do*:
-
-- **It can revise an earlier part of its own answer** after seeing what came later: genuine self-revision rather than re-generation (shown at prototype scale; making it hold on a larger base is exactly the kind of open question tracked below).
-- **It can decide its own order of work:** commit the parts it's confident about first, resolve the hard parts with more passes.
-- **It exposes a richer confidence signal** (from the refinement trajectory, not a single guess), which the calibrated "know when you don't know" component builds on.
-
-Autoregressive left-to-right generation is a *special case* of this more general process, so the foundation gives up nothing the standard approach has, while adding a headroom it lacks.
-
-**Why not stop there.** Block-diffusion is the starting substrate, not the destination. Other architecture families each have a genuinely proven strength: efficient long-range memory, adaptive reasoning depth, retrieval-augmented recall. Rather than pick one, Ouroboros **absorbs each proven mechanism onto the foundation**, but only after it earns its place under the same falsifiable test as everything else. The aim is a single composite architecture that combines these strengths instead of trading between them.
-
-</details>
-
-<br>
-
-## The method: this is the point
-
-The distinguishing feature of this work is not any one mechanism. It's the **discipline that decides what survives.** Every component follows the same rules:
+The distinguishing feature is not a mechanism but the **discipline that decides what survives**.
 
 <picture>
   <source media="(prefers-color-scheme: dark) and (max-width: 640px)" srcset="assets/diagrams/method-m-dark.svg">
   <source media="(max-width: 640px)" srcset="assets/diagrams/method-m-light.svg">
   <source media="(prefers-color-scheme: dark)" srcset="assets/diagrams/method-dark.svg">
-  <img alt="Pre-register the pass/fail bar, prove it in isolation, anti-cheat battery (leak, ablation, control), integrate and regression-gate the whole system. Beats the cheap baseline? Yes: seated. No: documented and cut, with root cause." src="assets/diagrams/method-light.svg" width="100%">
+  <img alt="Pre-register the pass/fail bar, prove it in isolation, run an anti-cheat battery, integrate and regression-gate the whole system. Beats the cheap baseline? Yes: seated. No: documented and cut, with root cause." src="assets/diagrams/method-light.svg" width="100%">
 </picture>
 
-1. **Earn your place or die.** The bar is written down *before* the run. Fail → documented and cut.
-2. **Anti-cheat everything.** Surface-leak probes, token ablations, key-only probes. A result that can't survive its anti-cheat is void.
-3. **One primitive at a time.** Prove solo → integrate → regression-gate → only then add the next.
-4. **Non-saturating metrics.** Accuracy saturates at toy scale, so components are judged on calibration, selective prediction, hallucination rate, and recovery speed.
-5. **The honesty rule.** No claim without the run output. Confounds get forensics, not hand-waving.
+1. **Research first.** Prior work, papers and official implementations are read before anything is built; nothing is re-derived that already exists.
+2. **Pre-registered tests.** The bar, sample size and stopping rule are written before the run: a fixed n of at least 300, or an anytime-valid paired sequential test.
+3. **Promotion is stricter.** Fresh held-out items, at least three seeds, correction for multiple arms, and a lesion that removes the effect.
+4. **Baselines and controls.** A random or legal baseline and the cheapest plausible competitor are measured before any win is banked.
+5. **Prove a channel is live.** A component that cannot change an output has contributed nothing, however plausible it looks.
+6. **No tradeoffs against the base.** Every result is compared with the unmodified base; regressions are defects.
+7. **Public benchmarks are never trained on.** They are held-out evaluation only.
 
-> **The lesson that reshaped everything: the cheap-baseline gate.** *Name the trivial baseline that could pass your bar without the mechanism, and show your design beats it.* Applied consistently, it revealed that most apparent "failures" were measurement artifacts, and, just as often, that an apparent *win* collapsed once the right baseline was named:
->
-> - A component that **beat its bar by a wide margin** was caught as **noise between two models that had never learned the task.**
-> - A variance-reduction method looked like a **30× win**; a crash forced an accidental re-run of the identical config, and one seed swung from success to total collapse. The "30×" was a single knife-edge seed. *Measure a stability method with a statistic that would move if it worked, not a mean over three seeds.*
-> - A memory mechanism the literature said *"don't bother"* worked fine, but the real blocker was a baseline nobody named: an exact-match lookup already inside the model, scoring perfectly. *Enumerate every cheap baseline, not just the obvious one.*
-
-The failures are the most instructive part of this repository, and they're all on the record with root causes and comeback paths.
+> **The lesson that reshaped everything: name the trivial baseline.** Several apparent wins collapsed once the cheap baseline was run, and several apparent failures were measurement artifacts. A control described in a comment is not a control; the check itself is often the bug.
 
 <br>
 
-## Selected measured results
-
-> **Scale note:** the chart and the first table below are **prototype-scale** results (~1M-param models, one 8&nbsp;GB laptop GPU). Every prototype-scale number is the output of a pre-registered, anti-cheated ablation. The larger-base row is separately labeled with its own scope.
+## Roadmap
 
 <picture>
-  <source media="(prefers-color-scheme: dark) and (max-width: 640px)" srcset="assets/lifts-m-dark.svg">
-  <source media="(max-width: 640px)" srcset="assets/lifts-m-light.svg">
-  <source media="(prefers-color-scheme: dark)" srcset="assets/lifts-dark.svg">
-  <img alt="Before-and-after results at prototype scale: recall in a 16k-fact store 0.101 to 1.000; binding 0.438 to 0.998; curiosity study-selection 0.599 to 0.994, about equal to oracle; runtime facts surviving a wipe 0.000 to 1.000; hallucination on unanswerable questions 1.000 to 0.000." src="assets/lifts-light.svg" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset="assets/diagrams/roadmap.svg">
+  <img alt="Roadmap: Stage 1 memory, context and attention; 1.1 output; 1.2 text input; then reasoning and permanent learning, autonomous tool use, and omni input last." src="assets/diagrams/roadmap.svg" width="100%">
 </picture>
 
-The story these show is not a wall of perfect scores. It's the **delta**: each mechanism moving its metric decisively past the baseline that would pass *without* it.
+- **Stage 1: memory, context, attention** (in progress). Effectively unbounded, exact, hardware-bounded memory and context, proven on real tasks before anything else advances.
+- **1.1 Output.** Unbounded generation.
+- **1.2 Text input.** Unbounded text input.
+- **Later.** Self-built reasoning, permanent learning, autonomous tool use with verified effects.
+- **Last.** Omni input (image, audio, video, 3D, screen).
 
-**Prototype scale (~1M params):**
-
-| Result | Baseline / control | With the mechanism |
-|---|:---:|:---:|
-| Runtime-learned facts survive a memory wipe (via "sleep" consolidation) | 0.000 | **1.000** |
-| Recall of facts beyond parametric capacity (16k-fact store) | 0.101 | **1.000** (fabrication 0.000 off-coverage) |
-| A binding problem, solved in the memory value | 0.438 | **0.998** (at ⅓ the storage) |
-| Curiosity ≈ oracle study-selection under a fixed budget | 0.599 | **0.994** (oracle 0.995) |
-| Tool-use reads the world, not memory | — | corrupt the tool output → the model follows it, **1.000** |
-| Effort dial: match max-compute accuracy for less compute | full compute | **−61% compute**, equal accuracy |
-| Hallucination on unanswerable questions (held across 15 integration steps) | — | **0.000** (coverage 1.000) |
-
-**Larger-base result (a stronger 1.5B-class open model):**
-
-| Result | Measured |
-|---|---|
-| A knowledge-boundary detector, in-flight, no extra training | **AUROC 1.00** on a curated known-vs-unknown evaluation set, separating what the model knows from what it doesn't |
-
-*Honest scope: this was measured on a controlled evaluation set; a production-grade form that runs against an arbitrary live datastore is in-progress work, not a shipped result.*
+Stages are not skipped; each is gated on measurement of the one before. Dates are deliberately absent.
 
 <br>
 
-## What's proven, what's open, and what failed
+## Failures on the record
 
-An architecture you can trust is one that draws these lines clearly. The full picture, not just the wins:
+Kept because they are the most instructive part of the log.
 
-### Proven (at prototype scale)
-
-The results above, each a pre-registered, anti-cheated ablation on ~1M-param models. These are real and reproducible, at that scale.
-
-### Proven, but not yet at scale: the honest open questions
-
-These are the claims still to be earned. Naming them is the point:
-
-- **Memory at large scale is unmeasured.** The retrieval store holds exact recall up to ~170k keys today. The larger tiers (1M+) that a real "long memory" claim depends on are **pre-registered but not yet run**. Until they are, the honest ceiling is 170k, not infinity.
-- **A stronger base absorbs much of the prototype roster.** Porting the toy-scale components onto a capable 1.5B-class model showed that a strong base already does several of them natively, so the *added* value at that scale is smaller than the prototype work alone would suggest. This is a genuine finding that cuts against the project, and it reshaped the plan (toward training-time integration, not decode-time bolt-ons).
-- **Single-pass long-form has a measured wall.** In one uninterrupted pass the model tops out around a few hundred words before its own stopping behavior kicks in; longer output currently needs a hierarchical, multi-pass scaffold rather than one continuous generation.
-- **Reasoning on the larger base is still weak in places** (e.g. multi-step logic): measured, named, and the target of the next phase, not glossed over.
-
-### Failed, and why
-
-Pre-registered tests that *didn't* earn a seat. Each carries its root cause:
-
-- **Recurrent (adaptive) depth.** No measurable iteration margin across two separate designs; the mechanism halts at a fixed depth rather than scaling with difficulty. Re-registered for re-test at larger scale, where the headroom may physically exist.
-- **A surprise-gated memory module.** Couldn't fit its own study set on deterministic footing; more inner compute only overfit. Shelved intact.
-- **A central / portfolio resource allocator.** A decentralized alternative won, then a follow-up proved there was *no headroom left to win at all* at this scale: even an oracle allocation tied uniform.
-- **An introspective self-model.** A synthetic head scored well but did not transfer to real lifetime history; the existing per-item confidence signal already beat even a perfect-oracle version, so the mechanism was structurally dominated.
-- **A self-correction / draft-repair pass.** Capability-limited, not gradient-limited; the repair plateaued regardless of training budget.
-- **A predictive-coding core** (tied flat), **a global decay-gate** (redundant, twice), **a dedicated verifier** (absorbed into the confidence signal).
-
-Several of these failures produced doctrines that improved everything after them, which is the real return on keeping them on the record.
+- **Recurrent (adaptive) depth, earlier prototypes.** No measurable iteration margin across two designs; re-registered for re-test at larger scale.
+- **A surprise-gated memory module.** Could not fit its own study set; shelved.
+- **A central resource allocator.** A decentralised alternative won, then a follow-up showed no headroom existed at that scale.
+- **An introspective self-model.** Did not transfer to real history and was dominated by the existing confidence signal.
+- **A self-correction pass, a predictive-coding core, a global decay gate, a dedicated verifier.** Capability-limited, tied, redundant, or absorbed elsewhere.
+- **The November items above:** a regression with no learning, unreproducible GPU runs, a harness scoring defect, a skipped add-on, and a harmful zero-training probe.
 
 <br>
 
-## Architecture at a glance
+## Earlier work (October 2026 and before)
 
-<picture>
-  <source media="(prefers-color-scheme: dark) and (max-width: 640px)" srcset="assets/diagrams/architecture-m-dark.svg">
-  <source media="(max-width: 640px)" srcset="assets/diagrams/architecture-m-light.svg">
-  <source media="(prefers-color-scheme: dark)" srcset="assets/diagrams/architecture-dark.svg">
-  <img alt="Spine (block-diffusion, drafts and revises spans) feeds layered memory (context, session, gist, lookup) and functional components (confidence, effort, causal, tool-use, curiosity, consolidation); each component is proven by ablation, then integrated." src="assets/diagrams/architecture-light.svg" width="100%">
-</picture>
+Superseded framing, kept for provenance. The first phase built and tested mechanisms at roughly 1M parameters on a single 8 GB laptop GPU, then explored a 1.5B-class base. Selected results, all prototype scale and each a pre-registered ablation:
 
-Every component is added **one at a time**, with a regression gate at every step, so nothing degrades, everything complements, and every regression is attributable. Prototype validation ran on a single 8&nbsp;GB laptop GPU; the 1.5B-base work also uses a rented cloud GPU. Each experiment prints its own ablation table.
+| Result | Baseline | With mechanism | Scope |
+|---|:---:|:---:|---|
+| Runtime-learned facts survive a memory wipe | 0.000 | 1.000 | ~1M params |
+| Recall beyond parametric capacity (16k-fact store) | 0.101 | 1.000 | ~1M params |
+| Effort dial: equal accuracy at less compute | full | -61% compute | ~1M params |
+| Knowledge-boundary detector, no extra training | n/a | AUROC 1.00 | controlled set, 1.5B-class base |
+| Decode speed, one decoding change | 74 tok/s | 167 tok/s | n = 900 per arm; **provisional**, raw run not archived |
+| Speed vs history length, 1K to 12M tokens | n/a | flat | n = 40 per cell; **pilot, not claimable** |
+| Session memory beyond the live view | 0.297 | 0.293 | n = 300; **no gain**, defect found and fixed |
 
-**The scale of the program is the point.** This isn't one clever trick. It's a **24-step, pre-registered integration ladder**: a dozen-plus distinct mechanisms designed, ablated, and composed into a *single* prototype model, with a documented failure ledger for everything that didn't make it, and the whole lineage re-run from scratch on independent hardware to check it replicates. That volume of falsifiable, regression-gated work, not any single component, is what's hard to fake, and it's the real asset. The roster is a snapshot of a process that keeps running: take one candidate, push it to its limit, stress-test it, add it only if it survives.
-
-<details>
-<summary><b>On memory and context length</b></summary>
-
-<br>
-
-The layered store means context isn't capped by a fixed attention window the way it is in a standard model. The large lookup tier holds what's been seen and is queried on demand, returning exact matches when the answer is in-store and abstaining (rather than fabricating) when it isn't. **The practical ceiling is set by available memory, not by a hardcoded limit**: more RAM means more retained context, so capacity scales with the hardware it runs on rather than being fixed in the weights. At prototype scale this retrieval tier has been validated at exact recall across several orders of magnitude of store size (up to ~170k keys, with larger tiers pre-registered for measurement). It's best described as *effectively unbounded within a given hardware budget*, not literally infinite, and every scale claim is tied to a measurement.
-
-</details>
-
-<br>
-
-## Have / Doing now / Will explore
-
-Drawing the line between what's *done*, what's *in progress*, and what's a *hypothesis* is the whole discipline. So, plainly:
-
-### Have (proven at prototype scale)
-
-- A single integrated model combining a dozen-plus mechanisms (memory tiers, calibrated confidence, adaptive effort, tool-use, curiosity, offline consolidation), each earned through a pre-registered ablation.
-- A 24-step integration ladder with a full failure ledger, re-run on independent hardware to confirm it replicates.
-- The measured results and the honest bounds above.
-
-### Doing now (on a stronger base)
-
-- Porting the validated components onto a capable 1.5B-class open model. This surfaced the honest finding that a strong base already does several of them natively, reshaping the plan toward **training-time integration** rather than decode-time add-ons.
-- Standing up the training pipeline for the first result that is *novel and holds on a real base*: the single thing that would move this from "rigorous prototype" to "fundable system." This is the current bottleneck, and it's honest work, not a wording problem.
-- Measuring, not assuming: reasoning and instruction-following on the larger base are weak in places today (named in the open questions above); closing that gap is the near-term target.
-
-### Will explore (hypotheses, not results)
-
-These are *directions with a rationale*, explicitly not claimed as working:
-
-- **Reasoning methods that a bidirectional model can do but a left-to-right one cannot**, e.g. revising an earlier reasoning step after seeing a later contradiction. Batteries are designed; none have returned a verdict yet.
-- **Efficient serving:** a stack of individually-known techniques that, combined, should raise throughput substantially. Projected, not yet measured end-to-end.
-- **Large-scale memory:** the retrieval tiers beyond the ~170k already validated.
-
-Each of these enters the *same* ablation ladder as everything else, and will be reported here whether it works or not.
-
-### What compute would unlock
-
-The prototype work was done on a single 8&nbsp;GB laptop GPU, which is the point, but also the ceiling. A concrete, checkable first milestone: **given a single modern GPU for a few weeks, run the pre-registered training experiment on the 1.5B base and report the result, with the success criterion fixed in advance and published either way.** Beyond that, more compute scales the same rigorous ladder (more scale, more seeds, faster iteration), never skipping a regression gate.
-
-<details>
-<summary><b>The long-horizon vision</b> (ambition, not achievement)</summary>
-
-<br>
-
-> **This section is ambition, not achievement.** Nothing below is built or measured. It's the destination the current, evidence-based work is aimed at, here so the *scale* of the bet is clear; every step toward it enters the same ablation ladder as everything above, and will be reported honestly.
-
-If the composite architecture holds as it scales, the endpoint it's aimed at is a genuinely different point on the cost/capability curve:
-
-- **A diffusion-based mixture-of-experts at the ~20–30B class**, combining this architecture's revision, memory, and confidence machinery with sparse expert routing, so that *frontier-relevant* capability is reachable at a fraction of the active compute a dense model of that size would need.
-- **Driven toward extreme quantization** (sub-2-bit weights): the research direction where a model of that class could, in principle, run on consumer and even mobile hardware rather than a datacenter.
-
-The through-line of the whole project is the same: **capability from architecture and efficiency, not from raw scale.** The prototype work is the evidence that the method is sound; this is where the method is pointed. Stated as a goal, held to the same standard of proof as everything else.
-
-</details>
+These do not transfer automatically: a stronger base already does several of these things natively, which is part of why the project moved to building in place on one.
 
 <br>
 
 ## Status & license
 
-**Private research, made viewable for evaluation.** The implementation, checkpoints, training recipes, and detailed roadmap are not public. They live in a private repository and are available to serious partners under separate arrangement. This log is shared so the method and the measured results can be assessed.
-
-**All rights reserved.** No license grant; viewable for evaluation only; do not redistribute or reuse. See [`LICENSE`](LICENSE).
+**Private research, made viewable for evaluation.** **All rights reserved.** No license grant; viewable for evaluation only; do not redistribute or reuse. See [`LICENSE`](LICENSE).
 
 ## About & contact
 
-Ouroboros is the work of a solo founder, built independently, starting on a single laptop. That constraint is deliberate, and it shows in the results: an entire architecture designed, implemented, and validated across a 24-step build on one 8&nbsp;GB consumer GPU, with every seated mechanism held to a pre-registered ablation. The efficiency of the approach *is* the thesis: careful architecture, not raw scale, is the lever a small team can pull.
-
-**I'm looking for compute and support to carry this validated foundation onto a larger base.** If you're evaluating this for a grant, compute allocation, or collaboration, or want to see the implementation under NDA, reach out on [X (@\_dr\_misterio\_)](https://x.com/_dr_misterio_) or open an issue here.
+Ouroboros is the work of a solo founder, built independently. I am looking for compute and collaborators to carry the validated parts forward. For grants, compute, collaboration, or to discuss the implementation under NDA: [X (@\_dr\_misterio\_)](https://x.com/_dr_misterio_), [portfolio](https://me.itachi1824.org), [GitHub](https://github.com/Itachi-1824), or open an issue here.
 
 <br>
 
@@ -291,4 +139,4 @@ Ouroboros is the work of a solo founder, built independently, starting on a sing
   <img alt="Ouroboros" src="assets/brand/mark-light.svg" width="28">
 </picture>
 
-<sub>Research log current as of October 2026 · updated as results land.</sub>
+<sub>Research log current as of 4 November 2026 · updated as results land.</sub>
